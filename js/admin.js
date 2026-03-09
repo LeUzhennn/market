@@ -84,7 +84,7 @@ function renderAdminTable(products) {
 
         return `
         <tr>
-            <td>
+            <td data-label="圖片">
                 ${firstImg && safeImageUrl(firstImg.image_url)
                     ? `<img src="${escapeAttr(safeImageUrl(firstImg.image_url))}"
                             class="admin-thumb" alt="${escapeAttr(p.title)}">`
@@ -92,30 +92,30 @@ function renderAdminTable(products) {
                                bg-light text-muted" style="font-size:1.4rem">📦</div>`
                 }
             </td>
-            <td>
+            <td data-label="商品名稱">
                 <div class="fw-600">${escapeHtml(p.title)}</div>
                 <span class="category-tag">${escapeHtml(p.category)}</span>
             </td>
-            <td class="text-danger fw-700">NT$ ${Number(p.price).toLocaleString()}</td>
-            <td>${Number(p.quantity)}</td>
-            <td>
+            <td data-label="售價" class="text-danger fw-700">NT$ ${Number(p.price).toLocaleString()}</td>
+            <td data-label="數量">${Number(p.quantity)}</td>
+            <td data-label="狀態">
                 <span class="badge ${isAvailable ? 'bg-success' : 'bg-secondary'}">
                     ${isAvailable ? '販售中' : '已售出'}
                 </span>
             </td>
-            <td>
+            <td data-label="操作">
                 <div class="d-flex gap-2 flex-wrap">
-                    <button class="btn btn-sm btn-outline-warning"
+                    <button class="btn btn-sm btn-outline-warning admin-action-btn"
                             onclick="openEditModal('${escapeAttr(p.id)}')">
-                        編輯
+                        ✏️ 編輯
                     </button>
-                    <button class="btn btn-sm btn-outline-${isAvailable ? 'secondary' : 'success'}"
+                    <button class="btn btn-sm btn-outline-${isAvailable ? 'secondary' : 'success'} admin-action-btn"
                             onclick="toggleStatus('${escapeAttr(p.id)}', '${escapeAttr(p.status)}')">
-                        ${isAvailable ? '標記售出' : '重新上架'}
+                        ${isAvailable ? '🏷️ 標記售出' : '🔄 重新上架'}
                     </button>
-                    <button class="btn btn-sm btn-outline-danger"
+                    <button class="btn btn-sm btn-outline-danger admin-action-btn"
                             onclick="confirmDelete('${escapeAttr(p.id)}', '${escapeAttr(p.title)}')">
-                        刪除
+                        🗑️ 刪除
                     </button>
                 </div>
             </td>

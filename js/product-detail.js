@@ -17,9 +17,14 @@ async function loadProduct() {
             .from('products')
             .select('*, product_images(id, image_url, sort_order)')
             .eq('id', productId)
-            .single();
+            .maybeSingle();
 
-        if (error || !product) {
+        if (error) {
+            console.error('查詢商品失敗:', error);
+            showNotFound();
+            return;
+        }
+        if (!product) {
             showNotFound();
             return;
         }

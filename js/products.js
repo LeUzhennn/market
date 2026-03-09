@@ -71,8 +71,8 @@ function renderProducts() {
 
         return `
         <div class="col-6 col-md-4 col-lg-3 mb-4">
-            <div class="product-card" role="button"
-                 onclick="location.href='product.html?id=${escapeAttr(product.id)}'">
+            <a class="product-card text-decoration-none"
+               href="product.html?id=${escapeAttr(product.id)}">
                 <div class="product-img-wrapper">
                     ${firstImage && safeImageUrl(firstImage.image_url)
                         ? `<img src="${escapeAttr(safeImageUrl(firstImage.image_url))}"
@@ -91,7 +91,7 @@ function renderProducts() {
                     <div class="product-price">NT$ ${Number(product.price).toLocaleString()}</div>
                     <div class="product-qty">數量：${product.quantity}</div>
                 </div>
-            </div>
+            </a>
         </div>`;
     }).join('');
 }
