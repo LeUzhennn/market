@@ -1,0 +1,59 @@
+# 基礎系統：Ubuntu 24.04
+FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
+
+# 避免安裝過程中的互動提示
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 1. 更換軟體源為 Azure 緩存 (加速下載)
+RUN sed -i 's/archive.ubuntu.com/azure.archive.ubuntu.com/g' /etc/apt/sources.list.d/ubuntu.sources \
+    && sed -i 's/security.ubuntu.com/azure.archive.ubuntu.com/g' /etc/apt/sources.list.d/ubuntu.sources \
+    && echo 'Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries
+
+# 2. 安裝必要工具、編譯依賴與 libmagic
+# 加入 libmagic1 以解決 "failed to find libmagic" 問題
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common \
+    gnupg2 \
+    build-essential \
+    libpq-dev \
+    pkg-config \
+    libssl-dev \
+    libffi-dev \
+    libmagic1 \
+    && add-apt-repository ppa:deadsnakes/ppa -y \
+    && apt-get update && apt-get install -y \
+    python3.13 \
+    python3.13-dev \
+    python3.13-venv \
+    curl \
+    git \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# 3. 安裝 Node.js LTS 並安裝 Gemini CLI
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g @google/gemini-cli
+
+# 4. 手動安裝 pip 並針對 Python 3.13 環境優化
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.13 \
+    && python3.13 -m pip install --upgrade pip setuptools wheel
+
+# 5. 設定 Python 3.13 為系統預設
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1 \
+    && update-alternatives --set python3 /usr/bin/python3.13
+
+# 6. 修復 _cffi_backend 缺失問題（強制重新安裝 cffi）
+RUN PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip install --force-reinstall cffi
+
+# 7. 更新系統動態連結庫路徑
+RUN ldconfig
+
+# 8. 設定關鍵環境變數
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
+ENV PYO3_PYTHON=/usr/bin/python3.13
+ENV LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
+ENV RUST_BACKTRACE=1
+
+WORKDIR /app
+
+CMD ["python3"]

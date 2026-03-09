@@ -1,0 +1,19 @@
+# 不追蹤的設定檔（請勿 commit 含有真實 key 的檔案）
+# 若你在 config.js 填入了真實的 Supabase key，請確保只 push 範本版本
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# 編輯器
+.vscode/settings.json
+.idea/
+
+# 暫存與日誌
+*.log
+*.tmp
+
+Agent.md
