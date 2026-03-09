@@ -106,15 +106,15 @@ function renderAdminTable(products) {
             <td data-label="操作">
                 <div class="d-flex gap-2 flex-wrap">
                     <button class="btn btn-sm btn-outline-warning admin-action-btn"
-                            onclick="openEditModal('${escapeAttr(p.id)}')">
+                            data-action="edit" data-id="${escapeAttr(p.id)}">
                         ✏️ 編輯
                     </button>
                     <button class="btn btn-sm btn-outline-${isAvailable ? 'secondary' : 'success'} admin-action-btn"
-                            onclick="toggleStatus('${escapeAttr(p.id)}', '${escapeAttr(p.status)}')">
+                            data-action="toggle" data-id="${escapeAttr(p.id)}" data-status="${escapeAttr(p.status)}">
                         ${isAvailable ? '🏷️ 標記售出' : '🔄 重新上架'}
                     </button>
                     <button class="btn btn-sm btn-outline-danger admin-action-btn"
-                            onclick="confirmDelete('${escapeAttr(p.id)}', '${escapeAttr(p.title)}')">
+                            data-action="delete" data-id="${escapeAttr(p.id)}" data-title="${escapeAttr(p.title)}">
                         🗑️ 刪除
                     </button>
                 </div>
@@ -193,7 +193,7 @@ function renderExistingImages() {
         <div class="img-preview-item" id="existing-${escapeAttr(img.id)}">
             <img src="${escapeAttr(safeImageUrl(img.image_url))}" alt="商品圖片">
             <button class="remove-img-btn" title="刪除此圖片"
-                    onclick="markImageDeleted('${escapeAttr(img.id)}')">✕</button>
+                    data-action="remove-existing" data-img-id="${escapeAttr(img.id)}">✕</button>
         </div>
     `).join('');
 }
@@ -228,7 +228,7 @@ function handleImageSelect(event) {
             item.innerHTML = `
                 <img src="${escapeAttr(e.target.result)}" alt="預覽">
                 <button class="remove-img-btn" title="移除"
-                        onclick="removeNewImage(${idx})">✕</button>`;
+                        data-action="remove-new" data-idx="${idx}">✕</button>`;
             grid.appendChild(item);
         };
         reader.readAsDataURL(file);
@@ -457,4 +457,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('btnSave').addEventListener('click', saveProduct);
     document.getElementById('btnLogout').addEventListener('click', logout);
     document.getElementById('imageInput').addEventListener('change', handleImageSelect);
+
+    // 表格操作按鈕：event delegation
+    document.getElementById('productsTableBody').addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const { action, id, status, title } = btn.dataset;
+        if (action === 'edit')   openEditModal(id);
+        if (action === 'toggle') toggleStatus(id, status);
+        if (action === 'delete') confirmDelete(id, title);
+    });
+
+    // 現有圖片刪除：event delegation
+    document.getElementById('existingImgsGrid').addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action="remove-existing"]');
+        if (!btn) return;
+        markImageDeleted(btn.dataset.imgId);
+    });
+
+    // 新圖片預覽刪除：event delegation
+    document.getElementById('newImgPreview').addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action="remove-new"]');
+        if (!btn) return;
+        removeNewImage(parseInt(btn.dataset.idx, 10));
+    });
 });
