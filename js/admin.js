@@ -382,7 +382,8 @@ async function deleteProduct(productId) {
 // ── 工具函式 ──
 
 function getModal() {
-    return new bootstrap.Modal(document.getElementById('productModal'));
+    const modalEl = document.getElementById('productModal');
+    return bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
 }
 
 function showToast(message, type = 'success') {
